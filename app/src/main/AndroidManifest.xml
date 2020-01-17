@@ -9,11 +9,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".DefaultTraxActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".CreateTraxActivity"
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".MyTraxActivity"
+            android:parentActivityName=".MainActivity"/>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+
+                <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
     </application>

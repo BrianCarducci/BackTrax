@@ -2,4 +2,7 @@
     <string name="app_name">BackTrax</string>
     <string name="edit_message">Enter a Message</string>
     <string name="button_send">Send</string>
+    <string name="my_trax">My Trax</string>
+    <string name="create_trax">Create Trax</string>
+    <string name="default_trax">Default Trax</string>
 </resources>
