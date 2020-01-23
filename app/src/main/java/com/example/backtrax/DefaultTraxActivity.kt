@@ -9,10 +9,8 @@ import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.main.activity_default_trax.*
 
 
-//var mediaPlayer: MediaPlayer? = null
-var mediaPlayer: MediaPlayer = MediaPlayer()
 class DefaultTraxActivity : AppCompatActivity() {
-
+    var mediaPlayer: MediaPlayer = MediaPlayer()
     var isPlayerLooping = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,15 +31,12 @@ class DefaultTraxActivity : AppCompatActivity() {
         songsListView.setOnItemClickListener { parent, view, position, id ->
             val element = arrayAdapter.getItem(position)
             val afd = assets.openFd("mp3s/$element.mp3")
-            Log.d("file info", "$afd")
-            Log.d("islooping null", "${mediaPlayer.isLooping}")
+
             mediaPlayer.reset()
             mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
             mediaPlayer.prepare()
             mediaPlayer.isLooping = isPlayerLooping
             mediaPlayer.start()
-            Log.d("is playing", mediaPlayer.isPlaying.toString())
-            Log.d("clicked file", afd.toString())
         }
     }
 
@@ -49,7 +44,7 @@ class DefaultTraxActivity : AppCompatActivity() {
         mediaPlayer.reset()
     }
 
-    fun loop(view: View) {
+    fun setPlayerLoop(view: View) {
         isPlayerLooping = !mediaPlayer.isLooping
         mediaPlayer.isLooping = !mediaPlayer.isLooping
     }
