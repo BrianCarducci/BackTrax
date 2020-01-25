@@ -1,5 +1,6 @@
 package com.example.backtrax
 
+import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,33 +12,37 @@ import kotlinx.android.synthetic.main.activity_default_trax.*
 
 
 class DefaultTraxActivity : AppCompatActivity() {
-    var mediaPlayer = MediaPlayer()
-    var isPlayerLooping = false
-    var playbackSpeed = 1.0f
+    private var mediaPlayer = MediaPlayer()
+    private var isPlayerLooping = false
+    private var playbackSpeed = 1.0f
+    private var songFileNames = mutableListOf<String>()
+    private var currentSongIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
 
-        val files = assets.list("mp3s").toMutableList()
-        val iterate = files.listIterator()
+        songFileNames = assets.list("mp3s").toMutableList()
+        val iterate = songFileNames.listIterator()
         while (iterate.hasNext()) {
             iterate.set(iterate.next().substringBefore((".")))
         }
 
-        val arrayAdapter = ArrayAdapter<String>(this, R.layout.songs_listview_item, files)
+        val arrayAdapter = ArrayAdapter<String>(this, R.layout.songs_listview_item, songFileNames)
         songs_list_view.apply {
             adapter = arrayAdapter
         }
         songs_list_view.setOnItemClickListener { parent, view, position, id ->
             val element = arrayAdapter.getItem(position)
+            currentSongIndex = position
             val afd = assets.openFd("mp3s/$element.mp3")
-            mediaPlayer.reset()
-            mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-            mediaPlayer.prepare()
-            mediaPlayer.isLooping = isPlayerLooping
-            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
-            mediaPlayer.start()
+            setUpAndStartMediaPlayer(afd)
+//            mediaPlayer.reset()
+//            mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+//            mediaPlayer.prepare()
+//            mediaPlayer.isLooping = isPlayerLooping
+//            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
+//            mediaPlayer.start()
         }
 
         val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.speed_spinner_item,
@@ -60,6 +65,15 @@ class DefaultTraxActivity : AppCompatActivity() {
             }
         }
 
+    }
+
+    private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+        mediaPlayer.prepare()
+        mediaPlayer.isLooping = isPlayerLooping
+        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
+        mediaPlayer.start()
     }
 
     fun playOrPause(view: View) {
@@ -86,11 +100,24 @@ class DefaultTraxActivity : AppCompatActivity() {
     }
 
     fun nextSong(view: View) {
+        if (currentSongIndex == songFileNames.size - 1) {
+            currentSongIndex = 0
 
+        } else {
+            currentSongIndex++
+        }
+        songs_list_view.setItemChecked(currentSongIndex, true)
+//        val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
+//        setUpAndStartMediaPlayer(afd)
     }
 
     fun prevSong(view: View) {
-
+        if (currentSongIndex == 0) {
+            currentSongIndex = songFileNames.size - 1
+        } else {
+            currentSongIndex--
+        }
+        songs_list_view.setSelection(currentSongIndex)
     }
 
     override fun onDestroy() {
