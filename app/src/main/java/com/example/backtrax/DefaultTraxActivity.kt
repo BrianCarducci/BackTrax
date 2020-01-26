@@ -2,16 +2,21 @@ package com.example.backtrax
 
 import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import kotlinx.android.synthetic.main.activity_default_trax.*
 
 
-class DefaultTraxActivity : AppCompatActivity() {
+class DefaultTraxActivity :
+    FragmentActivity(),
+    SongListFragment.OnFragmentInteractionListener,
+    PlayerFragment.OnFragmentInteractionListener {
 //    private var mediaPlayer = MediaPlayer()
 //    private var isPlayerLooping = false
 //    private var playbackSpeed = 1.0f
@@ -21,6 +26,15 @@ class DefaultTraxActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
+    }
+
+    override fun onFragmentInteraction(uri: Uri): Unit {
+
+    }
+
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContentView(R.layout.activity_default_trax)
 
 //        songFileNames = assets.list("mp3s").toMutableList()
 //        val iterate = songFileNames.listIterator()
@@ -65,7 +79,7 @@ class DefaultTraxActivity : AppCompatActivity() {
 //            }
 //        }
 
-    }
+//    }
 
 //    private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
 //        mediaPlayer.reset()
