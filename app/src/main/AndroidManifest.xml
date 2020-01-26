@@ -11,12 +11,15 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".DefaultTraxActivity"
+            android:label="Default Tracks"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".CreateTraxActivity"
+            android:label="Create Tracks"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MyTraxActivity"
+            android:label="My Tracks"
             android:parentActivityName=".MainActivity"/>
 
         <activity android:name=".MainActivity">

@@ -33,16 +33,13 @@ class DefaultTraxActivity : AppCompatActivity() {
             adapter = arrayAdapter
         }
         songs_list_view.setOnItemClickListener { parent, view, position, id ->
+            Log.d("Viewww", view.toString())
+            view.setSelected(true)
             val element = arrayAdapter.getItem(position)
+            now_playing_text_view.text = element
             currentSongIndex = position
             val afd = assets.openFd("mp3s/$element.mp3")
             setUpAndStartMediaPlayer(afd)
-//            mediaPlayer.reset()
-//            mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-//            mediaPlayer.prepare()
-//            mediaPlayer.isLooping = isPlayerLooping
-//            mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
-//            mediaPlayer.start()
         }
 
         val spinnerArrayAdapter = ArrayAdapter<String>(this, R.layout.speed_spinner_item,
@@ -55,7 +52,7 @@ class DefaultTraxActivity : AppCompatActivity() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val element = spinnerArrayAdapter.getItem(position)
-                playbackSpeed = (element.substringBefore("x") + "f").toFloat()
+                playbackSpeed = (element?.substringBefore("x") + "f").toFloat()
                 if (mediaPlayer.isPlaying) {
                     mediaPlayer.setPlaybackParams(
                         mediaPlayer.getPlaybackParams()
@@ -106,9 +103,11 @@ class DefaultTraxActivity : AppCompatActivity() {
         } else {
             currentSongIndex++
         }
-        songs_list_view.setItemChecked(currentSongIndex, true)
-//        val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
-//        setUpAndStartMediaPlayer(afd)
+        songs_list_view.performItemClick(
+            songs_list_view.adapter.getView(currentSongIndex, null, null),
+            currentSongIndex,
+            songs_list_view.adapter.getItemId(currentSongIndex)
+        )
     }
 
     fun prevSong(view: View) {
@@ -117,7 +116,11 @@ class DefaultTraxActivity : AppCompatActivity() {
         } else {
             currentSongIndex--
         }
-        songs_list_view.setSelection(currentSongIndex)
+        songs_list_view.performItemClick(
+            songs_list_view.adapter.getView(currentSongIndex, null, null),
+            currentSongIndex,
+            songs_list_view.adapter.getItemId(currentSongIndex)
+        )
     }
 
     override fun onDestroy() {
