@@ -5,4 +5,7 @@
     <string name="my_trax">My Trax</string>
     <string name="create_trax">Create Trax</string>
     <string name="default_trax">Default Trax</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
