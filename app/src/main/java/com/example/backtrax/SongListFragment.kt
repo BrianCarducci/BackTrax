@@ -1,17 +1,22 @@
 package com.example.backtrax
 
 import android.content.Context
+import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import kotlinx.android.synthetic.main.fragment_song_list.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
+private const val SONG_FILE_NAMES = "song_file_names"
 
 /**
  * A simple [Fragment] subclass.
@@ -23,15 +28,16 @@ private const val ARG_PARAM2 = "param2"
  */
 class SongListFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
+    private var songFileNames = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+        arguments?.let {}
+        songFileNames = activity?.assets?.list("mp3s")!!.toMutableList()
+        val iterate = songFileNames.listIterator()
+        while (iterate.hasNext()) {
+            iterate.set(iterate.next().substringBefore("."))
         }
     }
 
@@ -39,8 +45,32 @@ class SongListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_song_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_song_list, container, false)
+
+        val arrayAdapter = ArrayAdapter<String>(
+            activity!!.applicationContext,
+            R.layout.songs_listview_item,
+            songFileNames
+        )
+
+        val songsListView = view.findViewById<ListView>(R.id.songs_list_view)
+        songsListView.apply {
+            adapter = arrayAdapter
+        }
+        songsListView.setOnItemClickListener { parent, view, position, id ->
+            val fragmentManager = activity?.supportFragmentManager
+            val fragmentTransaction = fragmentManager?.beginTransaction()
+            val playerFragment = PlayerFragment()
+            val bundle = Bundle()
+            bundle.putString("songName", arrayAdapter.getItem(position))
+            playerFragment.arguments = bundle
+            fragmentTransaction?.replace(R.id.song_list_fragment_container, playerFragment)
+            fragmentTransaction?.addToBackStack(null)
+            fragmentTransaction?.commit()
+
+        }
+
+        return view
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -92,8 +122,8 @@ class SongListFragment : Fragment() {
         fun newInstance(param1: String, param2: String) =
             SongListFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+//                    putString(ARG_PARAM1, param1)
+//                    putString(ARG_PARAM2, param2)
                 }
             }
     }

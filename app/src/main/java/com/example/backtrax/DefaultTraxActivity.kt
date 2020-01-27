@@ -14,18 +14,36 @@ import kotlinx.android.synthetic.main.activity_default_trax.*
 
 
 class DefaultTraxActivity :
-    FragmentActivity(),
+    AppCompatActivity(),
     SongListFragment.OnFragmentInteractionListener,
     PlayerFragment.OnFragmentInteractionListener {
-//    private var mediaPlayer = MediaPlayer()
-//    private var isPlayerLooping = false
-//    private var playbackSpeed = 1.0f
-//    private var songFileNames = mutableListOf<String>()
-//    private var currentSongIndex = 0
+    private var mediaPlayer = MediaPlayer()
+    private var isPlayerLooping = false
+    private var playbackSpeed = 1.0f
+    private var songFileNames = mutableListOf<String>()
+    private var currentSongIndex = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
+
+        songFileNames = assets.list("mp3s").toMutableList()
+        val iterate = songFileNames.listIterator()
+        while (iterate.hasNext()) {
+            iterate.set(iterate.next().substringBefore((".")))
+        }
+
+        val bundle = Bundle()
+        bundle.putStringArrayList("song_file_names", songFileNames as ArrayList<String>)
+
+        val fragmentManager = supportFragmentManager
+        val fragmentTransaction = fragmentManager.beginTransaction()
+
+        val songListFragment = SongListFragment()
+        songListFragment.arguments = bundle
+        fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
+        fragmentTransaction.commit()
+
     }
 
     override fun onFragmentInteraction(uri: Uri): Unit {
