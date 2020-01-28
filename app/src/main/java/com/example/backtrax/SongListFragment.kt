@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import kotlinx.android.synthetic.main.fragment_song_list.*
+import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,7 +29,7 @@ private const val SONG_FILE_NAMES = "song_file_names"
  */
 class SongListFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var listener: OnFragmentInteractionListener? = null
+    private var callback: OnFragmentInteractionListener? = null
     private var songFileNames = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +40,7 @@ class SongListFragment : Fragment() {
         while (iterate.hasNext()) {
             iterate.set(iterate.next().substringBefore("."))
         }
+
     }
 
     override fun onCreateView(
@@ -62,11 +64,12 @@ class SongListFragment : Fragment() {
             val fragmentTransaction = fragmentManager?.beginTransaction()
             val playerFragment = PlayerFragment()
             val bundle = Bundle()
-            bundle.putString("songName", arrayAdapter.getItem(position))
+            bundle.putString("songTitle", arrayAdapter.getItem(position))
             playerFragment.arguments = bundle
             fragmentTransaction?.replace(R.id.song_list_fragment_container, playerFragment)
             fragmentTransaction?.addToBackStack(null)
             fragmentTransaction?.commit()
+            callback?.playSong()
 
         }
 
@@ -75,13 +78,13 @@ class SongListFragment : Fragment() {
 
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
+        callback?.onFragmentInteraction(uri)
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is OnFragmentInteractionListener) {
-            listener = context
+            callback = context
         } else {
             throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
         }
@@ -89,7 +92,7 @@ class SongListFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
+       callback = null
     }
 
     /**
@@ -103,9 +106,15 @@ class SongListFragment : Fragment() {
      * (http://developer.android.com/training/basics/fragments/communicating.html)
      * for more information.
      */
+
+    fun setOnFragmentInteractionListener(callback: OnFragmentInteractionListener) {
+        this.callback = callback
+    }
+
     interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         fun onFragmentInteraction(uri: Uri)
+        fun playSong()
     }
 
     companion object {

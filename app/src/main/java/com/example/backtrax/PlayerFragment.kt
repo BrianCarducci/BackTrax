@@ -7,10 +7,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val SONG_NAME = "songName"
+private const val SONG_TITLE = "songTitle"
 
 /**
  * A simple [Fragment] subclass.
@@ -22,13 +23,13 @@ private const val SONG_NAME = "songName"
  */
 class PlayerFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var songName: String? = null
+    private var songTitle: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            songName = it.getString(SONG_NAME)
+            songTitle = it.getString(SONG_TITLE)
         }
     }
 
@@ -36,7 +37,10 @@ class PlayerFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_player, container, false)
+        val view = inflater.inflate(R.layout.fragment_player, container, false)
+        val songTitleTextView = view.findViewById<TextView>(R.id.song_title_text_view)
+        songTitleTextView.text = songTitle
+        return view
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -88,7 +92,7 @@ class PlayerFragment : Fragment() {
         fun newInstance(param1: String, param2: String) =
             PlayerFragment().apply {
                 arguments = Bundle().apply {
-                    putString(SONG_NAME, param1)
+                    putString(SONG_TITLE, param1)
 //                    putString(ARG_PARAM2, param2)
                 }
             }

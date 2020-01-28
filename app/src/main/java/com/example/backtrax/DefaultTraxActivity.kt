@@ -17,7 +17,7 @@ class DefaultTraxActivity :
     AppCompatActivity(),
     SongListFragment.OnFragmentInteractionListener,
     PlayerFragment.OnFragmentInteractionListener {
-    private var mediaPlayer = MediaPlayer()
+    var mediaPlayer = MediaPlayer()
     private var isPlayerLooping = false
     private var playbackSpeed = 1.0f
     private var songFileNames = mutableListOf<String>()
@@ -35,7 +35,6 @@ class DefaultTraxActivity :
 
         val bundle = Bundle()
         bundle.putStringArrayList("song_file_names", songFileNames as ArrayList<String>)
-
         val fragmentManager = supportFragmentManager
         val fragmentTransaction = fragmentManager.beginTransaction()
 
@@ -48,6 +47,10 @@ class DefaultTraxActivity :
 
     override fun onFragmentInteraction(uri: Uri): Unit {
 
+    }
+
+    override fun playSong() {
+        Log.d("calledfromfragment", "yayyy")
     }
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
