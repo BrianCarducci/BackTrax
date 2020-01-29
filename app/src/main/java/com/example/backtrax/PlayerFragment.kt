@@ -1,12 +1,14 @@
 package com.example.backtrax
 
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.TextView
 
 // TODO: Rename parameter arguments, choose names that match
@@ -24,7 +26,8 @@ private const val SONG_TITLE = "songTitle"
 class PlayerFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var songTitle: String? = null
-    private var listener: OnFragmentInteractionListener? = null
+    private var activityCallback: OnPlayerFragmentInteractionListener? = null
+    private var isPlaying = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,20 +41,28 @@ class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player, container, false)
+
         val songTitleTextView = view.findViewById<TextView>(R.id.song_title_text_view)
         songTitleTextView.text = songTitle
-        return view
-    }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        listener?.onFragmentInteraction(uri)
+        val playPauseButton = view.findViewById<ImageButton>(R.id.play_pause_button)
+        playPauseButton.setOnClickListener {
+            if (isPlaying) {
+                playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_play, activity?.theme))
+            } else {
+                playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
+            }
+            activityCallback?.playPauseSong(isPlaying)
+            isPlaying = !isPlaying
+        }
+
+        return view
     }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            listener = context
+        if (context is OnPlayerFragmentInteractionListener) {
+            activityCallback = context
         } else {
             throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
         }
@@ -59,7 +70,7 @@ class PlayerFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-        listener = null
+        activityCallback = null
     }
 
     /**
@@ -73,9 +84,9 @@ class PlayerFragment : Fragment() {
      * (http://developer.android.com/training/basics/fragments/communicating.html)
      * for more information.
      */
-    interface OnFragmentInteractionListener {
+    interface OnPlayerFragmentInteractionListener {
         // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
+        fun playPauseSong(isPlaying: Boolean)
     }
 
     companion object {

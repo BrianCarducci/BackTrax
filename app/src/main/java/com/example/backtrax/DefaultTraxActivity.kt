@@ -15,13 +15,16 @@ import kotlinx.android.synthetic.main.activity_default_trax.*
 
 class DefaultTraxActivity :
     AppCompatActivity(),
-    SongListFragment.OnFragmentInteractionListener,
-    PlayerFragment.OnFragmentInteractionListener {
-    var mediaPlayer = MediaPlayer()
+    SongListFragment.OnSongListFragmentInteractionListener,
+    PlayerFragment.OnPlayerFragmentInteractionListener {
+    private var mediaPlayer = MediaPlayer()
     private var isPlayerLooping = false
     private var playbackSpeed = 1.0f
     private var songFileNames = mutableListOf<String>()
     private var currentSongIndex = 0
+
+    private val songListFragment = SongListFragment()
+    private val playerFragment = PlayerFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,23 +38,42 @@ class DefaultTraxActivity :
 
         val bundle = Bundle()
         bundle.putStringArrayList("song_file_names", songFileNames as ArrayList<String>)
-        val fragmentManager = supportFragmentManager
-        val fragmentTransaction = fragmentManager.beginTransaction()
-
-        val songListFragment = SongListFragment()
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
         songListFragment.arguments = bundle
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
+        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
 
     }
 
-    override fun onFragmentInteraction(uri: Uri): Unit {
-
+    private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
+        mediaPlayer.reset()
+        mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+        mediaPlayer.prepare()
+        mediaPlayer.isLooping = isPlayerLooping
+        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
+        mediaPlayer.start()
     }
 
-    override fun playSong() {
-        Log.d("calledfromfragment", "yayyy")
+    override fun songListViewFragmentClicked(songTitle: String?) {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        fragmentTransaction.replace(R.id.song_list_fragment_container, playerFragment)
+        fragmentTransaction.addToBackStack(null)
+        fragmentTransaction.commit()
+
+        val afd = assets.openFd("mp3s/${songTitle}.mp3")
+        setUpAndStartMediaPlayer(afd)
     }
+
+    override fun playPauseSong(isPlaying: Boolean) {
+        if (isPlaying) {
+            mediaPlayer.pause()
+        } else {
+            mediaPlayer.start()
+        }
+    }
+
+
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
 //        super.onCreate(savedInstanceState)
@@ -102,14 +124,6 @@ class DefaultTraxActivity :
 
 //    }
 
-//    private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
-//        mediaPlayer.reset()
-//        mediaPlayer.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-//        mediaPlayer.prepare()
-//        mediaPlayer.isLooping = isPlayerLooping
-//        mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
-//        mediaPlayer.start()
-//    }
 //
 //    fun playOrPause(view: View) {
 //        if (mediaPlayer.isPlaying) {

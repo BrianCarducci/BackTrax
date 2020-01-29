@@ -29,7 +29,7 @@ private const val SONG_FILE_NAMES = "song_file_names"
  */
 class SongListFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var callback: OnFragmentInteractionListener? = null
+    private var activityCallback: OnSongListFragmentInteractionListener? = null
     private var songFileNames = mutableListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,31 +60,17 @@ class SongListFragment : Fragment() {
             adapter = arrayAdapter
         }
         songsListView.setOnItemClickListener { parent, view, position, id ->
-            val fragmentManager = activity?.supportFragmentManager
-            val fragmentTransaction = fragmentManager?.beginTransaction()
-            val playerFragment = PlayerFragment()
-            val bundle = Bundle()
-            bundle.putString("songTitle", arrayAdapter.getItem(position))
-            playerFragment.arguments = bundle
-            fragmentTransaction?.replace(R.id.song_list_fragment_container, playerFragment)
-            fragmentTransaction?.addToBackStack(null)
-            fragmentTransaction?.commit()
-            callback?.playSong()
-
+            val songTitle = arrayAdapter.getItem(position)
+            activityCallback?.songListViewFragmentClicked(songTitle)
         }
 
         return view
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    fun onButtonPressed(uri: Uri) {
-        callback?.onFragmentInteraction(uri)
-    }
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        if (context is OnFragmentInteractionListener) {
-            callback = context
+        if (context is OnSongListFragmentInteractionListener) {
+            activityCallback = context
         } else {
             throw RuntimeException(context.toString() + " must implement OnFragmentInteractionListener")
         }
@@ -92,7 +78,7 @@ class SongListFragment : Fragment() {
 
     override fun onDetach() {
         super.onDetach()
-       callback = null
+       activityCallback = null
     }
 
     /**
@@ -107,14 +93,12 @@ class SongListFragment : Fragment() {
      * for more information.
      */
 
-    fun setOnFragmentInteractionListener(callback: OnFragmentInteractionListener) {
-        this.callback = callback
+    fun setOnSongListFragmentInteractionListener(callback: OnSongListFragmentInteractionListener) {
+        this.activityCallback = callback
     }
 
-    interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        fun onFragmentInteraction(uri: Uri)
-        fun playSong()
+    interface OnSongListFragmentInteractionListener {
+        fun songListViewFragmentClicked(songTitle: String?)
     }
 
     companion object {
@@ -136,4 +120,5 @@ class SongListFragment : Fragment() {
                 }
             }
     }
+
 }
