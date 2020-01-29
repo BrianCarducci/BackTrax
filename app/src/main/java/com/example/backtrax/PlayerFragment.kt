@@ -2,6 +2,7 @@ package com.example.backtrax
 
 import android.content.Context
 import android.graphics.drawable.Drawable
+import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -14,6 +15,7 @@ import android.widget.TextView
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val SONG_TITLE = "songTitle"
+private const val SONG_INDEX = "songIndex"
 
 /**
  * A simple [Fragment] subclass.
@@ -26,6 +28,7 @@ private const val SONG_TITLE = "songTitle"
 class PlayerFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var songTitle: String? = null
+    private var songIndex: Int? = null
     private var activityCallback: OnPlayerFragmentInteractionListener? = null
     private var isPlaying = true
 
@@ -33,6 +36,7 @@ class PlayerFragment : Fragment() {
         super.onCreate(savedInstanceState)
         arguments?.let {
             songTitle = it.getString(SONG_TITLE)
+            songIndex = it.getInt(SONG_INDEX)
         }
     }
 
@@ -54,6 +58,11 @@ class PlayerFragment : Fragment() {
             }
             activityCallback?.playPauseSong(isPlaying)
             isPlaying = !isPlaying
+        }
+
+        val nextButton = view.findViewById<ImageButton>(R.id.next_button)
+        nextButton.setOnClickListener {
+            activityCallback?.nextSong(songIndex)
         }
 
         return view
@@ -87,6 +96,7 @@ class PlayerFragment : Fragment() {
     interface OnPlayerFragmentInteractionListener {
         // TODO: Update argument type and name
         fun playPauseSong(isPlaying: Boolean)
+        fun nextSong(songIndex: Int?)
     }
 
     companion object {

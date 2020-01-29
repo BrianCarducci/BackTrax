@@ -61,7 +61,7 @@ class SongListFragment : Fragment() {
         }
         songsListView.setOnItemClickListener { parent, view, position, id ->
             val songTitle = arrayAdapter.getItem(position)
-            activityCallback?.songListViewFragmentClicked(songTitle)
+            activityCallback?.songListViewFragmentClicked(songTitle, position)
         }
 
         return view
@@ -98,7 +98,7 @@ class SongListFragment : Fragment() {
     }
 
     interface OnSongListFragmentInteractionListener {
-        fun songListViewFragmentClicked(songTitle: String?)
+        fun songListViewFragmentClicked(songTitle: String?, songIndex: Int)
     }
 
     companion object {

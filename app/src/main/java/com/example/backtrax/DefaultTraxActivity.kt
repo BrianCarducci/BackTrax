@@ -41,7 +41,6 @@ class DefaultTraxActivity :
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         songListFragment.arguments = bundle
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
-        fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
 
     }
@@ -55,7 +54,10 @@ class DefaultTraxActivity :
         mediaPlayer.start()
     }
 
-    override fun songListViewFragmentClicked(songTitle: String?) {
+    override fun songListViewFragmentClicked(songTitle: String?, songIndex: Int) {
+        val bundle = Bundle()
+        bundle.putInt("songIndex", songIndex)
+        playerFragment.arguments = bundle
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.song_list_fragment_container, playerFragment)
         fragmentTransaction.addToBackStack(null)
@@ -71,6 +73,15 @@ class DefaultTraxActivity :
         } else {
             mediaPlayer.start()
         }
+    }
+
+    override fun nextSong(songIndex: Int?) {
+        var newSongIndex = 0
+        if (songIndex!! < songFileNames.size - 1) {
+            newSongIndex = songIndex + 1
+        }
+        val afd = assets.openFd("mp3s/${songFileNames[newSongIndex]}.mp3")
+        setUpAndStartMediaPlayer(afd)
     }
 
 
