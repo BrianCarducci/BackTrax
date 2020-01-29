@@ -62,7 +62,7 @@ class PlayerFragment : Fragment() {
 
         val nextButton = view.findViewById<ImageButton>(R.id.next_button)
         nextButton.setOnClickListener {
-            activityCallback?.nextSong(songIndex)
+            activityCallback?.nextSong()
         }
 
         return view
@@ -96,7 +96,7 @@ class PlayerFragment : Fragment() {
     interface OnPlayerFragmentInteractionListener {
         // TODO: Update argument type and name
         fun playPauseSong(isPlaying: Boolean)
-        fun nextSong(songIndex: Int?)
+        fun nextSong()
     }
 
     companion object {

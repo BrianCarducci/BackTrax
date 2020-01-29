@@ -55,6 +55,7 @@ class DefaultTraxActivity :
     }
 
     override fun songListViewFragmentClicked(songTitle: String?, songIndex: Int) {
+        currentSongIndex = songIndex
         val bundle = Bundle()
         bundle.putInt("songIndex", songIndex)
         playerFragment.arguments = bundle
@@ -75,13 +76,21 @@ class DefaultTraxActivity :
         }
     }
 
-    override fun nextSong(songIndex: Int?) {
-        var newSongIndex = 0
-        if (songIndex!! < songFileNames.size - 1) {
-            newSongIndex = songIndex + 1
+    override fun nextSong() {
+        if (currentSongIndex < songFileNames.size - 1) {
+            currentSongIndex++
+        } else {
+            currentSongIndex = 0
         }
-        val afd = assets.openFd("mp3s/${songFileNames[newSongIndex]}.mp3")
+        val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
         setUpAndStartMediaPlayer(afd)
+
+//        var newSongIndex = 0
+//        if (songIndex!! < songFileNames.size - 1) {
+//            newSongIndex = songIndex + 1
+//        }
+//        val afd = assets.openFd("mp3s/${songFileNames[newSongIndex]}.mp3")
+//        setUpAndStartMediaPlayer(afd)
     }
 
 
