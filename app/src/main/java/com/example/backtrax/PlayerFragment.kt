@@ -9,22 +9,15 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
-import android.widget.TextView
+import android.widget.*
+import kotlinx.android.synthetic.main.fragment_player.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val SONG_TITLE = "songTitle"
 private const val SONG_INDEX = "songIndex"
 
-/**
- * A simple [Fragment] subclass.
- * Activities that contain this fragment must implement the
- * [PlayerFragment.OnFragmentInteractionListener] interface
- * to handle interaction events.
- * Use the [PlayerFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class PlayerFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var songTitle: String? = null
@@ -48,6 +41,26 @@ class PlayerFragment : Fragment() {
 
         val songTitleTextView = view.findViewById<TextView>(R.id.song_title_text_view)
         songTitleTextView.text = songTitle
+
+        val speedSpinner = view.findViewById<Spinner>(R.id.speed_spinner)
+        val spinnerArrayAdapter = ArrayAdapter<String>(activity, R.layout.speed_spinner_item,
+            listOf("0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"))
+        speedSpinner.apply {
+            adapter = spinnerArrayAdapter
+        }
+        speedSpinner.setSelection(3)
+        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val element = spinnerArrayAdapter.getItem(position)
+                activityCallback?.speedSpinnerClicked(element)
+            }
+        }
 
         val playPauseButton = view.findViewById<ImageButton>(R.id.play_pause_button)
         playPauseButton.setOnClickListener {
@@ -87,22 +100,13 @@ class PlayerFragment : Fragment() {
         activityCallback = null
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
+
     interface OnPlayerFragmentInteractionListener {
         // TODO: Update argument type and name
         fun playPauseSong(isPlaying: Boolean)
         fun nextSong()
         fun prevSong()
+        fun speedSpinnerClicked(speed: String)
     }
 
     companion object {

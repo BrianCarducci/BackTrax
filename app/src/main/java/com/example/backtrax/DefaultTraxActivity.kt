@@ -100,6 +100,16 @@ class DefaultTraxActivity :
         }
     }
 
+    override fun speedSpinnerClicked(speed: String) {
+        playbackSpeed = (speed.substringBefore("x") + "f").toFloat()
+//        if (mediaPlayer.isPlaying) {
+            mediaPlayer.setPlaybackParams(
+                mediaPlayer.getPlaybackParams()
+                    .setSpeed(playbackSpeed)
+            )
+//        }
+    }
+
 
 
 //    override fun onCreate(savedInstanceState: Bundle?) {
