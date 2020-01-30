@@ -84,13 +84,20 @@ class DefaultTraxActivity :
         }
         val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
         setUpAndStartMediaPlayer(afd)
+    }
 
-//        var newSongIndex = 0
-//        if (songIndex!! < songFileNames.size - 1) {
-//            newSongIndex = songIndex + 1
-//        }
-//        val afd = assets.openFd("mp3s/${songFileNames[newSongIndex]}.mp3")
-//        setUpAndStartMediaPlayer(afd)
+    override fun prevSong() {
+        if (mediaPlayer.currentPosition >= 3000) {
+            mediaPlayer.seekTo(0)
+        } else {
+            if (currentSongIndex > 0) {
+                currentSongIndex--
+            } else {
+                currentSongIndex = songFileNames.size - 1
+            }
+            val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
+            setUpAndStartMediaPlayer(afd)
+        }
     }
 
 

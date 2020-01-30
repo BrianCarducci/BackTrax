@@ -62,9 +62,14 @@ class PlayerFragment : Fragment() {
 
         val nextButton = view.findViewById<ImageButton>(R.id.next_button)
         nextButton.setOnClickListener {
+            playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
             activityCallback?.nextSong()
         }
 
+        val prevButton = view.findViewById<ImageButton>(R.id.prev_button)
+        prevButton.setOnClickListener {
+            activityCallback?.prevSong()
+        }
         return view
     }
 
@@ -97,6 +102,7 @@ class PlayerFragment : Fragment() {
         // TODO: Update argument type and name
         fun playPauseSong(isPlaying: Boolean)
         fun nextSong()
+        fun prevSong()
     }
 
     companion object {
