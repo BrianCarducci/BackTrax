@@ -30,19 +30,9 @@ class DefaultTraxActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
 
-        songFileNames = assets.list("mp3s").toMutableList()
-        val iterate = songFileNames.listIterator()
-        while (iterate.hasNext()) {
-            iterate.set(iterate.next().substringBefore((".")))
-        }
-
-        val bundle = Bundle()
-        bundle.putStringArrayList("song_file_names", songFileNames as ArrayList<String>)
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        songListFragment.arguments = bundle
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
         fragmentTransaction.commit()
-
     }
 
     private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
@@ -51,21 +41,25 @@ class DefaultTraxActivity :
         mediaPlayer.prepare()
         mediaPlayer.isLooping = isPlayerLooping
         mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed(playbackSpeed))
-        mediaPlayer.start()
+//        mediaPlayer.start()
     }
 
     override fun songListViewFragmentClicked(songTitle: String?, songIndex: Int) {
         currentSongIndex = songIndex
+
+        val afd = assets.openFd("mp3s/${songTitle}.mp3")
+        setUpAndStartMediaPlayer(afd)
+
         val bundle = Bundle()
         bundle.putInt("songIndex", songIndex)
+        bundle.putInt("songDuration", mediaPlayer.duration)
         playerFragment.arguments = bundle
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.song_list_fragment_container, playerFragment)
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
 
-        val afd = assets.openFd("mp3s/${songTitle}.mp3")
-        setUpAndStartMediaPlayer(afd)
+        mediaPlayer.start()
     }
 
     override fun playPauseSong(isPlaying: Boolean) {
@@ -76,7 +70,7 @@ class DefaultTraxActivity :
         }
     }
 
-    override fun nextSong() {
+    override fun nextSong(): HashMap<String, Int> {
         if (currentSongIndex < songFileNames.size - 1) {
             currentSongIndex++
         } else {
@@ -84,9 +78,11 @@ class DefaultTraxActivity :
         }
         val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
         setUpAndStartMediaPlayer(afd)
+        mediaPlayer.start()
+        return hashMapOf("songIndex" to currentSongIndex, "songDuration" to mediaPlayer.duration)
     }
 
-    override fun prevSong() {
+    override fun prevSong(): HashMap<String, Int> {
         if (mediaPlayer.currentPosition >= 3000) {
             mediaPlayer.seekTo(0)
         } else {
@@ -97,7 +93,9 @@ class DefaultTraxActivity :
             }
             val afd = assets.openFd("mp3s/${songFileNames[currentSongIndex]}.mp3")
             setUpAndStartMediaPlayer(afd)
+            mediaPlayer.start()
         }
+        return hashMapOf("songIndex" to currentSongIndex, "songDuration" to mediaPlayer.duration)
     }
 
     override fun speedSpinnerClicked(speed: String) {
@@ -108,6 +106,14 @@ class DefaultTraxActivity :
                     .setSpeed(playbackSpeed)
             )
 //        }
+    }
+
+    override fun songTick() {
+
+    }
+
+    override fun seekBarChanged(progress: Int) {
+        mediaPlayer.seekTo(progress * 1000)
     }
 
 
