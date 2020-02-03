@@ -30,6 +30,12 @@ class DefaultTraxActivity :
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
 
+        songFileNames = assets?.list("mp3s")!!.toMutableList()
+        val iterate = songFileNames.listIterator()
+        while (iterate.hasNext()) {
+            iterate.set(iterate.next().substringBefore("."))
+        }
+
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
         fragmentTransaction.commit()
@@ -108,8 +114,8 @@ class DefaultTraxActivity :
 //        }
     }
 
-    override fun songTick() {
-
+    override fun songTick(): Int {
+        return mediaPlayer.currentPosition
     }
 
     override fun seekBarChanged(progress: Int) {

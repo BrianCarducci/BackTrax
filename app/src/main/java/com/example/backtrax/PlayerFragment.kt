@@ -5,6 +5,7 @@ import android.graphics.drawable.Drawable
 import android.media.Image
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -111,6 +112,15 @@ class PlayerFragment : Fragment() {
             seekBar.max = songData[SONG_DURATION]!!/1000
         }
 
+        val handler = Handler()
+        activity?.runOnUiThread(object: Runnable {
+           override fun run() {
+               var position = activityCallback?.songTick()
+               seekBar.progress = position!!/1000
+               handler.postDelayed(this, 1000)
+           }
+        })
+
 //        Thread(object: Runnable {
 //            override fun run() {
 //                try {
@@ -150,7 +160,7 @@ class PlayerFragment : Fragment() {
         fun playPauseSong(isPlaying: Boolean)
         fun nextSong(): HashMap<String, Int>
         fun prevSong(): HashMap<String, Int>
-        fun songTick()
+        fun songTick(): Int
         fun seekBarChanged(progress: Int)
         fun speedSpinnerClicked(speed: String)
     }
