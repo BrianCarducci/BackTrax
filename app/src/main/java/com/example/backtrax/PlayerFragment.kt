@@ -13,6 +13,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import kotlinx.android.synthetic.main.fragment_player.*
+import org.w3c.dom.Text
 import java.lang.Thread.sleep
 
 // TODO: Rename parameter arguments, choose names that match
@@ -51,6 +52,18 @@ class PlayerFragment : Fragment() {
         val songTitleTextView = view.findViewById<TextView>(R.id.song_title_text_view)
         songTitleTextView.text = songFileNames[songIndex!!].substringBefore(".")
 
+        val songTotalTimeTextView = view.findViewById<TextView>(R.id.song_total_time_text_view)
+        var songDurationMinutes = Math.floor(songData[SONG_DURATION]!!.toDouble()/60_000).toInt()
+        var songDurationLeftoverSeconds = songData[SONG_DURATION]!! / 1000 % 60
+        if (songDurationLeftoverSeconds < 10) {
+            songTotalTimeTextView.text = "${songDurationMinutes}:0${songDurationLeftoverSeconds}"
+        } else {
+            songTotalTimeTextView.text = "${songDurationMinutes}:${songDurationLeftoverSeconds}"
+        }
+
+
+        val songTimeTextView = view.findViewById<TextView>(R.id.song_time_text_view)
+
         val speedSpinner = view.findViewById<Spinner>(R.id.speed_spinner)
         val spinnerArrayAdapter = ArrayAdapter<String>(activity, R.layout.speed_spinner_item,
             listOf("0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"))
@@ -87,6 +100,13 @@ class PlayerFragment : Fragment() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     activityCallback?.seekBarChanged(progress)
+                    val minutes = Math.floor(progress.toDouble()/60).toInt()
+                    val leftoverSeconds = progress % 60
+                    if (leftoverSeconds < 10) {
+                        songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
+                    } else {
+                        songTimeTextView.text = "${minutes}:${leftoverSeconds}"
+                    }
                 }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -115,8 +135,15 @@ class PlayerFragment : Fragment() {
         val handler = Handler()
         activity?.runOnUiThread(object: Runnable {
            override fun run() {
-               var position = activityCallback?.songTick()
-               seekBar.progress = position!!/1000
+               val totalSeconds = activityCallback?.songTick()!!/1000
+               val minutes = Math.floor(totalSeconds.toDouble()/60).toInt()
+               val leftoverSeconds = totalSeconds % 60
+               if (leftoverSeconds < 10) {
+                   songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
+               } else {
+                   songTimeTextView.text = "${minutes}:${leftoverSeconds}"
+               }
+               seekBar.progress = totalSeconds
                handler.postDelayed(this, 1000)
            }
         })

@@ -36,6 +36,10 @@ class DefaultTraxActivity :
             iterate.set(iterate.next().substringBefore("."))
         }
 
+        mediaPlayer.setOnCompletionListener {
+
+        }
+
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
         fragmentTransaction.commit()
@@ -106,12 +110,12 @@ class DefaultTraxActivity :
 
     override fun speedSpinnerClicked(speed: String) {
         playbackSpeed = (speed.substringBefore("x") + "f").toFloat()
-//        if (mediaPlayer.isPlaying) {
+        if (mediaPlayer.isPlaying) {
             mediaPlayer.setPlaybackParams(
                 mediaPlayer.getPlaybackParams()
                     .setSpeed(playbackSpeed)
             )
-//        }
+        }
     }
 
     override fun songTick(): Int {
