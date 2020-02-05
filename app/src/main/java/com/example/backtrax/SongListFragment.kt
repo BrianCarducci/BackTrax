@@ -12,12 +12,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.SeekBar
 import kotlinx.android.synthetic.main.fragment_song_list.*
 import kotlin.random.Random
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val SONG_FILE_NAMES = "song_file_names"
+private const val SONG_FILE_NAMES = "songFileNames"
 
 /**
  * A simple [Fragment] subclass.
@@ -30,16 +31,18 @@ private const val SONG_FILE_NAMES = "song_file_names"
 class SongListFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var activityCallback: OnSongListFragmentInteractionListener? = null
-    private var songFileNames = mutableListOf<String>()
+    private var songFileNames = arrayListOf<String>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {}
-        songFileNames = activity?.assets?.list("mp3s")!!.toMutableList()
-        val iterate = songFileNames.listIterator()
-        while (iterate.hasNext()) {
-            iterate.set(iterate.next().substringBefore("."))
+        arguments?.let {
+            songFileNames = it.getStringArrayList(SONG_FILE_NAMES)!!
         }
+//        songFileNames = activity?.assets?.list("mp3s")!!.toMutableList()
+//        val iterate = songFileNames.listIterator()
+//        while (iterate.hasNext()) {
+//            iterate.set(iterate.next().substringBefore("."))
+//        }
 
     }
 

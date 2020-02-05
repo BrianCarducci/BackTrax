@@ -15,6 +15,7 @@ import android.widget.*
 import kotlinx.android.synthetic.main.fragment_player.*
 import org.w3c.dom.Text
 import java.lang.Thread.sleep
+import kotlin.math.max
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,6 +32,14 @@ class PlayerFragment : Fragment() {
     private var isPlaying = true
     private var songFileNames = mutableListOf<String>()
     private var songData = hashMapOf<String, Int>()
+    private val handler = Handler()
+
+    private var seekBar: SeekBar? = null
+    private var songTitleTextView: TextView? = null
+    private var songTimeTextView: TextView? = null
+    private var songTotalTimeTextView: TextView? = null
+    private var speedSpinner: Spinner? = null
+    private var playPauseButton: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,39 +58,54 @@ class PlayerFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_player, container, false)
 
-        val songTitleTextView = view.findViewById<TextView>(R.id.song_title_text_view)
-        songTitleTextView.text = songFileNames[songIndex!!].substringBefore(".")
-
-        val songTotalTimeTextView = view.findViewById<TextView>(R.id.song_total_time_text_view)
-        var songDurationMinutes = Math.floor(songData[SONG_DURATION]!!.toDouble()/60_000).toInt()
-        var songDurationLeftoverSeconds = songData[SONG_DURATION]!! / 1000 % 60
-        if (songDurationLeftoverSeconds < 10) {
-            songTotalTimeTextView.text = "${songDurationMinutes}:0${songDurationLeftoverSeconds}"
-        } else {
-            songTotalTimeTextView.text = "${songDurationMinutes}:${songDurationLeftoverSeconds}"
+        songTitleTextView = view.findViewById(R.id.song_title_text_view)
+        songTitleTextView?.let {
+            it.text = songFileNames[songIndex!!].substringBefore(".")
         }
 
+        songTotalTimeTextView = view.findViewById(R.id.song_total_time_text_view)
+        songTotalTimeTextView?.let {
+            it.text = calculateSongTimeString(songData[SONG_DURATION]!!)
+        }
 
-        val songTimeTextView = view.findViewById<TextView>(R.id.song_time_text_view)
+        songTimeTextView = view.findViewById(R.id.song_time_text_view)
 
-        val speedSpinner = view.findViewById<Spinner>(R.id.speed_spinner)
-        val spinnerArrayAdapter = ArrayAdapter<String>(activity, R.layout.speed_spinner_item,
+
+        val spinnerArrayAdapter = ArrayAdapter<String>(activity as Context, R.layout.speed_spinner_item,
             listOf("0.25x", "0.5x", "0.75x", "1x", "1.25x", "1.5x", "1.75x", "2x"))
-        speedSpinner.adapter = spinnerArrayAdapter
-
-        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
-                val element = spinnerArrayAdapter.getItem(position)
-                activityCallback?.speedSpinnerClicked(element)
+        speedSpinner = view.findViewById(R.id.speed_spinner)
+        speedSpinner?.let {
+            it.adapter = spinnerArrayAdapter
+            it.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    val element = spinnerArrayAdapter.getItem(position)
+                    activityCallback?.speedSpinnerClicked(element)
+                }
             }
+            it.setSelection(3)
         }
-        speedSpinner.setSelection(3)
+
+//        speedSpinner.adapter = spinnerArrayAdapter
+//
+//        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onNothingSelected(parent: AdapterView<*>?) {}
+//            override fun onItemSelected(
+//                parent: AdapterView<*>?,
+//                view: View?,
+//                position: Int,
+//                id: Long
+//            ) {
+//                val element = spinnerArrayAdapter.getItem(position)
+//                activityCallback?.speedSpinnerClicked(element)
+//            }
+//        }
+//        speedSpinner.setSelection(3)
 
         val playPauseButton = view.findViewById<ImageButton>(R.id.play_pause_button)
         playPauseButton.setOnClickListener {
@@ -94,59 +118,92 @@ class PlayerFragment : Fragment() {
             isPlaying = !isPlaying
         }
 
-        val seekBar = view.findViewById<SeekBar>(R.id.seek_bar)
-        seekBar.max = songData[SONG_DURATION]!!/1000
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (fromUser) {
-                    activityCallback?.seekBarChanged(progress)
-                    val minutes = Math.floor(progress.toDouble()/60).toInt()
-                    val leftoverSeconds = progress % 60
-                    if (leftoverSeconds < 10) {
-                        songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
-                    } else {
-                        songTimeTextView.text = "${minutes}:${leftoverSeconds}"
+        seekBar = view.findViewById(R.id.seek_bar)
+        seekBar?.let {
+            it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                    if (fromUser) {
+                        songTimeTextView?.let { textView ->
+                            textView.text = calculateSongTimeString(progress * 1000)
+                        }
+                        activityCallback?.seekBarChanged(progress)
                     }
                 }
-            }
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {
 
-            }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                }
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {
 
-            }
-        })
+                }
+            })
+        }
+
+
+
+//        val seekBarLocal = seekBar!!
+//        seekBarLocal.max = songData[SONG_DURATION]!!/1000
+//        seekBarLocal.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+//                if (fromUser) {
+//                    activityCallback?.seekBarChanged(progress)
+//                    val minutes = Math.floor(progress.toDouble()/60).toInt()
+//                    val leftoverSeconds = progress % 60
+//                    if (leftoverSeconds < 10) {
+//                        songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
+//                    } else {
+//                        songTimeTextView.text = "${minutes}:${leftoverSeconds}"
+//                    }
+//                }
+//            }
+//            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+//
+//            }
+//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+//
+//            }
+//        })
 
         val nextButton = view.findViewById<ImageButton>(R.id.next_button)
         nextButton.setOnClickListener {
             playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
             songData = activityCallback?.nextSong()!!
             songTitleTextView.text = songFileNames[songData[SONG_INDEX]!!]
-            seekBar.max = songData[SONG_DURATION]!!/1000
+            seekBar?.let {
+                it.max = songData[SONG_DURATION]!!/1000
+            }
+            songTotalTimeTextView.let {
+                var
+                it.text =
+            }
+
+//            seekBar.max = songData[SONG_DURATION]!!/1000
         }
 
         val prevButton = view.findViewById<ImageButton>(R.id.prev_button)
         prevButton.setOnClickListener {
             songData = activityCallback?.prevSong()!!
             songTitleTextView.text = songFileNames[songData[SONG_INDEX]!!]
-            seekBar.max = songData[SONG_DURATION]!!/1000
+            seekBar?.let {
+                it.max = songData[SONG_DURATION]!!/1000
+            }
+//            seekBar.max = songData[SONG_DURATION]!!/1000
         }
 
-        val handler = Handler()
-        activity?.runOnUiThread(object: Runnable {
-           override fun run() {
-               val totalSeconds = activityCallback?.songTick()!!/1000
-               val minutes = Math.floor(totalSeconds.toDouble()/60).toInt()
-               val leftoverSeconds = totalSeconds % 60
-               if (leftoverSeconds < 10) {
-                   songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
-               } else {
-                   songTimeTextView.text = "${minutes}:${leftoverSeconds}"
-               }
-               seekBar.progress = totalSeconds
-               handler.postDelayed(this, 1000)
-           }
-        })
+
+//        activity?.runOnUiThread(object: Runnable {
+//           override fun run() {
+//               val totalSeconds = activityCallback?.songTick()!!/1000
+//               val minutes = Math.floor(totalSeconds.toDouble()/60).toInt()
+//               val leftoverSeconds = totalSeconds % 60
+//               if (leftoverSeconds < 10) {
+//                   songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
+//               } else {
+//                   songTimeTextView.text = "${minutes}:${leftoverSeconds}"
+//               }
+//               seekBar.progress = totalSeconds
+//               handler.postDelayed(this, 1000)
+//           }
+//        })
 
 //        Thread(object: Runnable {
 //            override fun run() {
@@ -179,6 +236,26 @@ class PlayerFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
         activityCallback = null
+    }
+
+    fun progressBarTick(currentPosition: Int) {
+        seekBar?.let {
+            it.progress = currentPosition/1000
+        }
+
+    }
+
+    // Parameter should be in milliseconds
+    private fun calculateSongTimeString(songDuration: Int): String {
+        val songTimeString: String
+        val songDurationMinutes = Math.floor(songDuration.toDouble()/60_000).toInt().toString()
+        val songDurationLeftoverSeconds = songDuration / 1000 % 60
+        if (songDurationLeftoverSeconds < 10) {
+            songTimeString = "${songDurationMinutes}:0${songDurationLeftoverSeconds}"
+        } else {
+            songTimeString = "${songDurationMinutes}:${songDurationLeftoverSeconds}"
+        }
+        return songTimeString
     }
 
 

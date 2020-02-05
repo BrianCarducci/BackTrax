@@ -4,6 +4,7 @@ import android.content.res.AssetFileDescriptor
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.AdapterView
@@ -11,6 +12,7 @@ import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentActivity
 import kotlinx.android.synthetic.main.activity_default_trax.*
+import java.util.ArrayList
 
 
 class DefaultTraxActivity :
@@ -26,6 +28,8 @@ class DefaultTraxActivity :
     private val songListFragment = SongListFragment()
     private val playerFragment = PlayerFragment()
 
+    private val handler = Handler()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_default_trax)
@@ -40,9 +44,21 @@ class DefaultTraxActivity :
 
         }
 
+        val bundle = Bundle()
+        bundle.putStringArrayList("songFileNames", songFileNames as ArrayList<String>)
+        songListFragment.arguments = bundle
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.add(R.id.song_list_fragment_container, songListFragment)
         fragmentTransaction.commit()
+
+        runOnUiThread(object: Runnable {
+            override fun run() {
+                if (mediaPlayer.isPlaying && playerFragment.isVisible) {
+                    playerFragment.progressBarTick(mediaPlayer.currentPosition)
+                }
+                handler.postDelayed(this, 1000)
+            }
+        })
     }
 
     private fun setUpAndStartMediaPlayer(afd: AssetFileDescriptor) {
