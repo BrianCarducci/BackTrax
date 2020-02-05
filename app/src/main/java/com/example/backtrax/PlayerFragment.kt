@@ -39,7 +39,7 @@ class PlayerFragment : Fragment() {
     private var songTimeTextView: TextView? = null
     private var songTotalTimeTextView: TextView? = null
     private var speedSpinner: Spinner? = null
-    private var playPauseButton: Button? = null
+    private var playPauseButton: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,15 +107,17 @@ class PlayerFragment : Fragment() {
 //        }
 //        speedSpinner.setSelection(3)
 
-        val playPauseButton = view.findViewById<ImageButton>(R.id.play_pause_button)
-        playPauseButton.setOnClickListener {
-            if (isPlaying) {
-                playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_play, activity?.theme))
-            } else {
-                playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
+        playPauseButton = view.findViewById(R.id.play_pause_button)
+        playPauseButton?.let { button ->
+            button.setOnClickListener {
+                if (isPlaying) {
+                    button.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_play, activity?.theme))
+                } else {
+                    button.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
+                }
+                activityCallback?.playPauseSong(isPlaying)
+                isPlaying = !isPlaying
             }
-            activityCallback?.playPauseSong(isPlaying)
-            isPlaying = !isPlaying
         }
 
         seekBar = view.findViewById(R.id.seek_bar)
@@ -137,31 +139,6 @@ class PlayerFragment : Fragment() {
                 }
             })
         }
-
-
-
-//        val seekBarLocal = seekBar!!
-//        seekBarLocal.max = songData[SONG_DURATION]!!/1000
-//        seekBarLocal.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-//            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-//                if (fromUser) {
-//                    activityCallback?.seekBarChanged(progress)
-//                    val minutes = Math.floor(progress.toDouble()/60).toInt()
-//                    val leftoverSeconds = progress % 60
-//                    if (leftoverSeconds < 10) {
-//                        songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
-//                    } else {
-//                        songTimeTextView.text = "${minutes}:${leftoverSeconds}"
-//                    }
-//                }
-//            }
-//            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-//
-//            }
-//            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-//
-//            }
-//        })
 
         val nextButton = view.findViewById<ImageButton>(R.id.next_button)
         nextButton.setOnClickListener {
