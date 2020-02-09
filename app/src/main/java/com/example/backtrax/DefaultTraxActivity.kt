@@ -162,6 +162,7 @@ class DefaultTraxActivity :
         Log.d("destroyed", "destroyeddddd")
         super.onDestroy()
         handler.removeCallbacks(runnable)
+        mediaPlayer.release()
     }
 
 }
