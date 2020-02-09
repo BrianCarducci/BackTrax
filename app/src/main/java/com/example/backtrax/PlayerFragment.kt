@@ -40,6 +40,8 @@ class PlayerFragment : Fragment() {
     private var songTotalTimeTextView: TextView? = null
     private var speedSpinner: Spinner? = null
     private var playPauseButton: ImageButton? = null
+    private var nextButton: ImageButton? = null
+    private var prevButton: ImageButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,22 +93,6 @@ class PlayerFragment : Fragment() {
             it.setSelection(3)
         }
 
-//        speedSpinner.adapter = spinnerArrayAdapter
-//
-//        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onNothingSelected(parent: AdapterView<*>?) {}
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                val element = spinnerArrayAdapter.getItem(position)
-//                activityCallback?.speedSpinnerClicked(element)
-//            }
-//        }
-//        speedSpinner.setSelection(3)
-
         playPauseButton = view.findViewById(R.id.play_pause_button)
         playPauseButton?.let { button ->
             button.setOnClickListener {
@@ -121,8 +107,9 @@ class PlayerFragment : Fragment() {
         }
 
         seekBar = view.findViewById(R.id.seek_bar)
-        seekBar?.let {
-            it.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        seekBar?.let {seekBar ->
+            seekBar.max = songData[SONG_DURATION]!!/1000
+            seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                     if (fromUser) {
                         songTimeTextView?.let { textView ->
@@ -131,71 +118,44 @@ class PlayerFragment : Fragment() {
                         activityCallback?.seekBarChanged(progress)
                     }
                 }
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-                }
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-                }
+                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             })
         }
 
-        val nextButton = view.findViewById<ImageButton>(R.id.next_button)
-        nextButton.setOnClickListener {
-            playPauseButton.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
-            songData = activityCallback?.nextSong()!!
-            songTitleTextView.text = songFileNames[songData[SONG_INDEX]!!]
-            seekBar?.let {
-                it.max = songData[SONG_DURATION]!!/1000
+        nextButton = view.findViewById(R.id.next_button)
+        nextButton?.let { button ->
+            button.setOnClickListener {
+                playPauseButton?.let {
+                    it.setImageDrawable(resources.getDrawable(android.R.drawable.ic_media_pause, activity?.theme))
+                }
+                songData = activityCallback?.nextSong()!!
+                songTitleTextView?.let { textView ->
+                    textView.text = songFileNames[songData[SONG_INDEX]!!]
+                }
+                seekBar?.let { seekBar ->
+                    seekBar.progress = 0
+                    seekBar.max = songData[SONG_DURATION]!!/1000
+                }
+                songTotalTimeTextView?.let {textView ->
+                    textView.text = calculateSongTimeString(songData[SONG_DURATION]!!)
+                }
             }
-            songTotalTimeTextView.let {
-                var
-                it.text =
-            }
-
-//            seekBar.max = songData[SONG_DURATION]!!/1000
         }
 
-        val prevButton = view.findViewById<ImageButton>(R.id.prev_button)
-        prevButton.setOnClickListener {
-            songData = activityCallback?.prevSong()!!
-            songTitleTextView.text = songFileNames[songData[SONG_INDEX]!!]
-            seekBar?.let {
-                it.max = songData[SONG_DURATION]!!/1000
+        prevButton = view.findViewById(R.id.prev_button)
+        prevButton?.let { button ->
+            button.setOnClickListener {
+                songData = activityCallback?.prevSong()!!
+                songTitleTextView?.let { textView ->
+                    textView.text = songFileNames[songData[SONG_INDEX]!!]
+                }
+                seekBar?.let { seekBar ->
+                    seekBar.progress = 0
+                    seekBar.max = songData[SONG_DURATION]!!/1000
+                }
             }
-//            seekBar.max = songData[SONG_DURATION]!!/1000
         }
-
-
-//        activity?.runOnUiThread(object: Runnable {
-//           override fun run() {
-//               val totalSeconds = activityCallback?.songTick()!!/1000
-//               val minutes = Math.floor(totalSeconds.toDouble()/60).toInt()
-//               val leftoverSeconds = totalSeconds % 60
-//               if (leftoverSeconds < 10) {
-//                   songTimeTextView.text = "${minutes}:0${leftoverSeconds}"
-//               } else {
-//                   songTimeTextView.text = "${minutes}:${leftoverSeconds}"
-//               }
-//               seekBar.progress = totalSeconds
-//               handler.postDelayed(this, 1000)
-//           }
-//        })
-
-//        Thread(object: Runnable {
-//            override fun run() {
-//                try {
-//                    Log.d("threadrunning", "threadrunning")
-//                    Thread.sleep(1000)
-//                } catch (e: InterruptedException) {
-//                    Log.d("exceptionz", e.message)
-//                }
-//            }
-//        }).start()
-//        activity?.runOnUiThread {
-//            Log.d("runningthread", "runningthread")
-//            sleep(1000)
-//        }
 
         return view
     }
@@ -216,10 +176,12 @@ class PlayerFragment : Fragment() {
     }
 
     fun progressBarTick(currentPosition: Int) {
-        seekBar?.let {
-            it.progress = currentPosition/1000
+        seekBar?.let { seekBar ->
+            seekBar.progress = currentPosition/1000
         }
-
+        songTimeTextView?.let { textView ->
+            textView.text = calculateSongTimeString(currentPosition)
+        }
     }
 
     // Parameter should be in milliseconds
@@ -235,9 +197,7 @@ class PlayerFragment : Fragment() {
         return songTimeString
     }
 
-
     interface OnPlayerFragmentInteractionListener {
-        // TODO: Update argument type and name
         fun playPauseSong(isPlaying: Boolean)
         fun nextSong(): HashMap<String, Int>
         fun prevSong(): HashMap<String, Int>

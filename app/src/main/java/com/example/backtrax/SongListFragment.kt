@@ -38,12 +38,6 @@ class SongListFragment : Fragment() {
         arguments?.let {
             songFileNames = it.getStringArrayList(SONG_FILE_NAMES)!!
         }
-//        songFileNames = activity?.assets?.list("mp3s")!!.toMutableList()
-//        val iterate = songFileNames.listIterator()
-//        while (iterate.hasNext()) {
-//            iterate.set(iterate.next().substringBefore("."))
-//        }
-
     }
 
     override fun onCreateView(
@@ -82,22 +76,6 @@ class SongListFragment : Fragment() {
     override fun onDetach() {
         super.onDetach()
        activityCallback = null
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     *
-     *
-     * See the Android Training lesson [Communicating with Other Fragments]
-     * (http://developer.android.com/training/basics/fragments/communicating.html)
-     * for more information.
-     */
-
-    fun setOnSongListFragmentInteractionListener(callback: OnSongListFragmentInteractionListener) {
-        this.activityCallback = callback
     }
 
     interface OnSongListFragmentInteractionListener {
