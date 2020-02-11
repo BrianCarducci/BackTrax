@@ -131,13 +131,13 @@ class PlayerFragment : Fragment() {
                 }
                 songData = activityCallback?.nextSong()!!
                 songTitleTextView?.let { textView ->
-                    textView.text = songFileNames[songData[SONG_INDEX]!!]
+                    textView.text = songFileNames[songData[SONG_INDEX]!!].substringBefore(".")
                 }
                 seekBar?.let { seekBar ->
                     seekBar.progress = 0
                     seekBar.max = songData[SONG_DURATION]!!/1000
                 }
-                songTotalTimeTextView?.let {textView ->
+                songTotalTimeTextView?.let { textView ->
                     textView.text = calculateSongTimeString(songData[SONG_DURATION]!!)
                 }
             }
@@ -148,11 +148,14 @@ class PlayerFragment : Fragment() {
             button.setOnClickListener {
                 songData = activityCallback?.prevSong()!!
                 songTitleTextView?.let { textView ->
-                    textView.text = songFileNames[songData[SONG_INDEX]!!]
+                    textView.text = songFileNames[songData[SONG_INDEX]!!].substringBefore(".")
                 }
                 seekBar?.let { seekBar ->
                     seekBar.progress = 0
                     seekBar.max = songData[SONG_DURATION]!!/1000
+                }
+                songTotalTimeTextView?.let { textView ->
+                    textView.text = calculateSongTimeString(songData[SONG_DURATION]!!)
                 }
             }
         }

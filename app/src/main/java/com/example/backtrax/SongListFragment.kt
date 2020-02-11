@@ -32,6 +32,7 @@ class SongListFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var activityCallback: OnSongListFragmentInteractionListener? = null
     private var songFileNames = arrayListOf<String>()
+    private var songsListView: ListView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,15 +52,23 @@ class SongListFragment : Fragment() {
             R.layout.songs_listview_item,
             songFileNames
         )
+        songsListView = view.findViewById(R.id.songs_list_view)
+        songsListView?.let { listView ->
+            listView.adapter = arrayAdapter
+            listView.setOnItemClickListener { parent, view, position, id ->
+                val songTitle = arrayAdapter.getItem(position)
+                activityCallback?.songListViewFragmentClicked(songTitle, position)
+            }
+        }
 
-        val songsListView = view.findViewById<ListView>(R.id.songs_list_view)
-        songsListView.apply {
-            adapter = arrayAdapter
-        }
-        songsListView.setOnItemClickListener { parent, view, position, id ->
-            val songTitle = arrayAdapter.getItem(position)
-            activityCallback?.songListViewFragmentClicked(songTitle, position)
-        }
+//        val songsListView = view.findViewById<ListView>(R.id.songs_list_view)
+//        songsListView.apply {
+//            adapter = arrayAdapter
+//        }
+//        songsListView.setOnItemClickListener { parent, view, position, id ->
+//            val songTitle = arrayAdapter.getItem(position)
+//            activityCallback?.songListViewFragmentClicked(songTitle, position)
+//        }
 
         return view
     }

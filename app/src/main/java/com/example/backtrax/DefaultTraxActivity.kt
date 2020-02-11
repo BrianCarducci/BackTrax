@@ -24,6 +24,7 @@ class DefaultTraxActivity :
     private var playbackSpeed = 1.0f
     private var songFileNames = mutableListOf<String>()
     private var currentSongIndex = 0
+    private var firstSongSelection = true
 
     private val songListFragment = SongListFragment()
     private val playerFragment = PlayerFragment()
@@ -82,9 +83,11 @@ class DefaultTraxActivity :
     }
 
     override fun songListViewFragmentClicked(songTitle: String?, songIndex: Int) {
-        currentSongIndex = songIndex
 
         val afd = assets.openFd("mp3s/${songTitle}.mp3")
+        if (songIndex == currentSongIndex) {
+
+        }
         setUpMediaPlayer(afd)
 
         val bundle = Bundle()
